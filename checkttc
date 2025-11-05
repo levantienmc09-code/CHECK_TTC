@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi POST Request - Tuongtaccheo</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #response { margin-top: 20px; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; background-color: #f4f4f4; }
+        label, input, button { display: block; margin-bottom: 10px; }
+        input[type="text"] { width: 300px; padding: 8px; }
+        button { padding: 10px 15px; cursor: pointer; background-color: #4CAF50; color: white; border: none; }
+    </style>
+</head>
+<body>
+
+    <h1>Kiểm tra Access Token TTC</h1>
+
+    <form id="loginForm">
+        <label for="accessToken">Nhập TTC Access Token của bạn:</label>
+        <input type="text" id="accessToken" name="accessToken" required>
+        <button type="submit">Gửi Yêu Cầu</button>
+    </form>
+
+    <h2>Kết quả trả về:</h2>
+    <pre id="response">...</pre>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            // Ngăn form submit theo cách thông thường
+            event.preventDefault();
+
+            // Lấy giá trị access token
+            const accessToken = document.getElementById('accessToken').value;
+            const apiUrl = 'https://tuongtaccheo.com/logintoken.php';
+            const responseElement = document.getElementById('response');
+            
+            responseElement.textContent = 'Đang gửi yêu cầu...';
+
+            // Dữ liệu body cần gửi, được mã hóa dưới dạng application/x-www-form-urlencoded
+            const bodyData = `access_token=${encodeURIComponent(accessToken)}`;
+
+            // Cấu hình yêu cầu POST
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: bodyData // Dữ liệu đã mã hóa
+            };
+
+            // Gửi yêu cầu sử dụng fetch()
+            fetch(apiUrl, requestOptions)
+                .then(response => {
+                    // Kiểm tra xem request có thành công không (status code 200-299)
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    // Chuyển đổi phản hồi thành JSON
+                    return response.json();
+                })
+                .then(data => {
+                    // Hiển thị kết quả JSON đã format
+                    responseElement.textContent = JSON.stringify(data, null, 4);
+                })
+                .catch(error => {
+                    // Xử lý lỗi (ví dụ: lỗi mạng, lỗi HTTP)
+                    console.error('Lỗi khi gửi yêu cầu:', error);
+                    responseElement.textContent = `Đã xảy ra lỗi: ${error.message}`;
+                });
+        });
+    </script>
+</body>
+</html>
